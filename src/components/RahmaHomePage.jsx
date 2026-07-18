@@ -77,6 +77,7 @@ const CopperCanvas = () => {
     const duration = 2300;
 
     const prefersReducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
+    const reduceMotion = prefersReducedMotion();
     const shouldUseLightCanvas = () => Boolean(
       window.matchMedia?.('(max-width: 760px)').matches ||
       navigator.connection?.saveData ||
@@ -272,7 +273,7 @@ const CopperCanvas = () => {
         ];
       };
 
-      if (progress < 1 || mobileScene) {
+      if (!reduceMotion) {
         const pulseDuration = mobileScene ? 1650 : 2200;
         const overlayProgress = (elapsed % pulseDuration) / pulseDuration;
         const streakOffsets = mobileScene ? [0, 0.34, 0.68] : (lightCanvas ? [0.18] : [0, 0.34, 0.68]);
@@ -312,8 +313,7 @@ const CopperCanvas = () => {
 
     resize();
     const renderFrame = (now) => {
-      const pulseLoop = completed && isMobileScene();
-      const frameBudget = pulseLoop ? 70 : (lightCanvas ? 42 : 32);
+      const frameBudget = completed ? (lightCanvas ? 70 : 48) : (lightCanvas ? 42 : 32);
       if (now - lastFrameAt < frameBudget) {
         frameId = requestAnimationFrame(renderFrame);
         return;
@@ -323,14 +323,13 @@ const CopperCanvas = () => {
       const progress = Math.min(1, elapsed / duration);
       completed = progress >= 1;
       draw(progress, elapsed);
-      frameId = completed && !isMobileScene() ? null : requestAnimationFrame(renderFrame);
+      frameId = requestAnimationFrame(renderFrame);
     };
 
     const drawStatic = () => {
       const elapsed = performance.now() - startedAt;
       draw(completed ? 1 : Math.min(1, elapsed / duration), elapsed);
     };
-    const reduceMotion = prefersReducedMotion();
     if (reduceMotion) {
       completed = true;
       draw(1, duration);
@@ -340,16 +339,30 @@ const CopperCanvas = () => {
 
     const handleResize = () => {
       resize();
+      lastFrameAt = 0;
       drawStatic();
-      if (!reduceMotion && !frameId && isMobileScene()) {
+      if (!reduceMotion && !frameId) {
         frameId = requestAnimationFrame(renderFrame);
       }
     };
+    const handleVisibilityChange = () => {
+      if (document.hidden || reduceMotion) return;
+      lastFrameAt = 0;
+      if (!frameId) frameId = requestAnimationFrame(renderFrame);
+    };
+    const resizeObserver = typeof ResizeObserver === 'undefined'
+      ? null
+      : new ResizeObserver(handleResize);
+
+    resizeObserver?.observe(canvas.parentElement || canvas);
     window.addEventListener('resize', handleResize);
+    document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
+      resizeObserver?.disconnect();
       window.removeEventListener('resize', handleResize);
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
 
