@@ -1,0 +1,407 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                Int      @id @default(autoincrement())
+  username          String   @unique
+  password          String
+  role              String   @default("admin")
+  isActive          Boolean  @default(true)
+  lastLoginAt       DateTime?
+  passwordUpdatedAt DateTime?
+  mustChangePassword Boolean @default(false)
+  twoFactorEnabled  Boolean  @default(false)
+  twoFactorSecret   String?
+  createdAt         DateTime @default(now())
+  sessions          AdminSession[]
+  auditLogs         AdminAuditLog[]
+}
+
+model AdminSession {
+  id               Int      @id @default(autoincrement())
+  userId           Int
+  user             User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  refreshTokenHash String   @unique
+  userAgent        String?  @db.Text
+  ipAddress        String?
+  expiresAt        DateTime
+  revokedAt        DateTime?
+  createdAt        DateTime @default(now())
+  lastUsedAt       DateTime @default(now())
+
+  @@index([userId])
+  @@index([expiresAt])
+}
+
+model AdminAuditLog {
+  id         Int      @id @default(autoincrement())
+  userId     Int?
+  user       User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action     String
+  method     String
+  path       String
+  entity     String?
+  entityId   String?
+  statusCode Int?
+  ipAddress  String?
+  userAgent  String?  @db.Text
+  meta       String?  @db.Text
+  createdAt  DateTime @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
+  @@index([entity])
+}
+
+model Service {
+  id              Int         @id @default(autoincrement())
+  slug            String      @unique // Stable public URL key; legacy rows were backfilled before this constraint was made required.
+  titleAr         String
+  titleEn         String
+  descAr          String      @db.Text
+  descEn          String      @db.Text
+  detailsAr       String?     @db.LongText
+  detailsEn       String?     @db.LongText
+  image           String?     // Drive fileId or URL
+  features        String?     @db.LongText // JSON string array
+  goalKeys        String?     @db.Text // JSON string array: sales | brand | platform | content | automation
+  theme           String      @default("plum")
+  destinationType String      @default("dynamic") // dynamic | internal
+  internalPath    String?
+  icon            String      @default("Sparkles")
+  price           Float?
+  order           Int         @default(0)
+  isActive        Boolean     @default(true)
+  createdAt       DateTime    @default(now())
+  // A DB default makes this additive migration safe for the six legacy rows;
+  // Prisma will keep refreshing it on all subsequent updates.
+  updatedAt       DateTime    @default(now()) @updatedAt
+  portfolios      Portfolio[]
+}
+
+model Portfolio {
+  id         Int      @id @default(autoincrement())
+  titleAr    String
+  titleEn    String
+  descAr     String?  @db.Text
+  descEn     String?  @db.Text
+  category   String
+  image      String   // Drive fileId or URL
+  images     String?  @db.Text // JSON array of additional image fileIds
+  clientName String?
+  link       String?
+  date       DateTime?
+  featured   Boolean  @default(false)
+  isActive   Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  services   Service[]
+}
+
+model Testimonial {
+  id          Int      @id @default(autoincrement())
+  clientName  String
+  clientTitle String?
+  clientImage String?  // Drive fileId or URL
+  contentAr   String   @db.Text
+  contentEn   String?  @db.Text
+  rating      Int      @default(5)
+  createdAt   DateTime @default(now())
+}
+
+model Partner {
+  id      Int    @id @default(autoincrement())
+  name    String
+  logoUrl String // Drive fileId or URL
+  order   Int    @default(0)
+}
+
+model ContactRequest {
+  id               Int      @id @default(autoincrement())
+  name             String
+  email            String?
+  phone            String?
+  company          String?
+  businessActivity String?  @db.Text
+  budget           Float?
+  selectedServices String?  @db.Text
+  message          String?  @db.Text
+  requestType      String   @default("contact") // contact | plan | advertising
+  planSection      String?
+  planId           String?
+  planTitle        String?
+  planPrice        Float?
+  planCurrency     String?
+  requestDetails   Json?
+  status           String   @default("new")
+  source           String   @default("website")
+  adminNote        String?  @db.Text
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  @@index([status, createdAt])
+  @@index([requestType, createdAt])
+}
+
+model Setting {
+  key   String @id
+  value String @db.Text
+}
+
+model Translation {
+  id  Int    @id @default(autoincrement())
+  key String @unique
+  ar  String @db.Text
+  en  String @db.Text
+}
+
+// ─── News Models ─────────────────────────────────────────────────────────────
+
+model NewsArticle {
+  id           Int       @id @default(autoincrement())
+  titleAr      String
+  titleEn      String?
+  slug         String    @unique
+  summaryAr    String?   @db.Text
+  summaryEn    String?   @db.Text
+  contentAr    String    @db.LongText
+  contentEn    String?   @db.LongText
+  image        String?   // Drive fileId or URL
+  images       String?   @db.LongText // JSON array of Drive upload payloads
+  imageAltAr   String?
+  imageAltEn   String?
+  category     String    @default("general")
+  authorId     Int?
+  author       NewsAuthor? @relation(fields: [authorId], references: [id])
+  tags         String?   // JSON array
+  status       String    @default("draft") // draft | published | archived
+  featured     Boolean   @default(false)
+  breaking     Boolean   @default(false)
+  trending     Boolean   @default(false)
+  homeSlot     String?
+  homeOrder    Int       @default(0)
+  metaTitle    String?
+  metaDesc     String?   @db.Text
+  seoKeywords  String?   @db.Text
+  canonicalUrl String?
+  sourceName   String?
+  sourceUrl    String?
+  videoUrl     String?
+  readTimeMinutes Int?
+  publishedAt  DateTime  @default(now())
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  @@index([status, publishedAt])
+  @@index([category, publishedAt])
+}
+
+model NewsCategory {
+  id      Int    @id @default(autoincrement())
+  nameAr  String
+  nameEn  String
+  slug    String @unique
+  color   String @default("#9d027c")
+  order   Int    @default(0)
+}
+
+model NewsAuthor {
+  id       Int           @id @default(autoincrement())
+  nameAr   String
+  nameEn   String
+  bioAr    String?       @db.Text
+  bioEn    String?       @db.Text
+  image    String?       // Drive fileId or URL
+  articles NewsArticle[]
+}
+
+model BreakingNews {
+  id        Int      @id @default(autoincrement())
+  textAr    String
+  textEn    String?
+  link      String?
+  isActive  Boolean  @default(true)
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+// ─── Websites Page ────────────────────────────────────────────────────────────
+
+model Website {
+  id           Int      @id @default(autoincrement())
+  nameAr       String
+  nameEn       String
+  descAr       String?  @db.Text
+  descEn       String?  @db.Text
+  url          String?
+  logoFileId   String?  // Drive fileId for logo/icon
+  screenshotId String?  // Drive fileId for frontend screenshot
+  category     String?
+  order        Int      @default(0)
+  isVisible    Boolean  @default(true)
+  createdAt    DateTime @default(now())
+}
+
+// ─── Media Slider ─────────────────────────────────────────────────────────────
+
+model MediaSliderItem {
+  id          Int      @id @default(autoincrement())
+  type        String   @default("image") // image | video
+  fileId      String   // Drive fileId
+  url         String?
+  thumbnailUrl String?
+  originalName String?
+  driveName   String?
+  mimeType    String?
+  folder      String?
+  titleAr     String?
+  titleEn     String?
+  description String?  @db.Text
+  order       Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+}
+
+// ─── Pricing Packages (shared across software/social/media) ──────────────────
+
+model PricingPackage {
+  id          Int      @id @default(autoincrement())
+  section     String   // software | social | media
+  softwareCategory String? // web | commerce | crm | ai | automation | growth (software only)
+  isCustomPlan Boolean  @default(false) // opens the custom-plan builder instead of adding directly to cart
+  nameAr      String
+  nameEn      String
+  descriptionAr String? @db.Text
+  descriptionEn String? @db.Text
+  badgeAr     String?
+  badgeEn     String?
+  price       Float // السعر بعد الخصم (السعر المعتمد للطلب)
+  originalPrice Float?
+  currency    String   @default("EGP")
+  period      String   @default("monthly") // monthly | yearly | once
+  priceNoteAr String?
+  priceNoteEn String?
+  featuresAr  String   @db.Text // JSON array
+  featuresEn  String   @db.Text // JSON array
+  detailsAr   String?  @db.Text // JSON array
+  detailsEn   String?  @db.Text // JSON array
+  highlighted Boolean  @default(false)
+  ctaText     String?
+  ctaLink     String?
+  order       Int      @default(0)
+  isActive    Boolean  @default(true)
+}
+
+// ─── Social Media Page Categories ────────────────────────────────────────────
+
+model SocialMediaCategory {
+  id          Int     @id @default(autoincrement())
+  nameAr      String
+  nameEn      String?
+  keyword     String
+  descriptionAr String? @db.Text
+  descriptionEn String? @db.Text
+  images      String? @db.LongText // JSON array of Drive upload payloads
+  order       Int     @default(0)
+  isActive    Boolean @default(true)
+}
+
+model Page {
+  id          Int           @id @default(autoincrement())
+  slug        String        @unique
+  titleAr     String
+  titleEn     String?
+  metaTitleAr String?
+  metaTitleEn String?
+  metaDescAr  String?       @db.Text
+  metaDescEn  String?       @db.Text
+  status      String        @default("draft") // draft | published
+  publishedAt DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  sections    PageSection[]
+}
+
+model PageSection {
+  id          Int      @id @default(autoincrement())
+  pageId      Int
+  page        Page     @relation(fields: [pageId], references: [id], onDelete: Cascade)
+  key         String
+  labelAr     String
+  labelEn     String?
+  type        String   @default("content")
+  content     String   @db.LongText
+  draftContent String? @db.LongText
+  order       Int      @default(0)
+  isVisible   Boolean  @default(true)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@unique([pageId, key])
+  @@index([pageId])
+}
+
+model MediaAsset {
+  id           Int      @id @default(autoincrement())
+  fileId       String?
+  url          String?
+  thumbnailUrl String?
+  fileName     String
+  originalName String?
+  driveName    String?
+  mimeType     String?
+  folder       String?
+  scope        String?
+  driveFolderId String?
+  driveFolderPath String?
+  sizeBytes    Int?
+  kind         String?
+  altAr        String?
+  altEn        String?
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([folder, createdAt])
+}
+
+model DriveSequence {
+  scope     String   @id
+  value     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model NewsletterSubscriber {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String?
+  source    String   @default("news")
+  isActive  Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+// ─── Team Members ─────────────────────────────────────────────────────────────
+
+model TeamMember {
+  id           Int      @id @default(autoincrement())
+  ring         Int      @default(3)
+  order        Int      @default(0)
+  nameAr       String
+  nameEn       String?
+  titleAr      String
+  titleEn      String?
+  bioAr        String?  @db.Text
+  bioEn        String?  @db.Text
+  departmentAr String?
+  departmentEn String?
+  imagePng     String?  // Drive fileId or URL
+  accent       String   @default("#6d3355")
+  projectTags  String?  @db.Text // JSON string array
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}

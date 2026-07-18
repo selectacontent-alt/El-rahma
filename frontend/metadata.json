@@ -1,0 +1,6 @@
+{
+  "name": "Select Customers Marketing",
+  "description": "An ultra-modern, high-performance web development and digital marketing agency platform with dynamic multilingual translation, rich content overlays, interactive statistics, and an AI-powered smart marketing assistant.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

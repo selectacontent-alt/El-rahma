@@ -1,0 +1,92 @@
+.glass-card {
+  background: rgba(255, 255, 255, 0.75);
+  backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+}
+
+/* Animations from the film-loving concept */
+@keyframes pulse-fast {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.2; }
+}
+
+.animate-pulse-fast {
+  animation: pulse-fast 1s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Aperture zoom/open effect */
+@keyframes aperture-open {
+  0% {
+    clip-path: circle(0% at 50% 50%);
+  }
+  100% {
+    clip-path: circle(120% at 50% 50%);
+  }
+}
+
+.animate-aperture-open {
+  animation: aperture-open 1.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Film reel animations */
+@keyframes scroll-left {
+  0% { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-scroll-left {
+  animation: scroll-left var(--reel-speed, 40s) linear infinite;
+}
+
+@keyframes scroll-right {
+  0% { transform: translateX(-50%); }
+  100% { transform: translateX(0); }
+}
+
+.animate-scroll-right {
+  animation: scroll-right var(--reel-speed, 40s) linear infinite;
+}
+
+.media-pricing-track {
+  grid-auto-columns: calc((100% - 1.5rem) / 3);
+  scrollbar-width: thin;
+  scroll-snap-type: x mandatory;
+}
+
+.media-pricing-track > * {
+  min-width: 0;
+  scroll-snap-align: start;
+}
+
+@media (min-width: 1024px) {
+  .media-pricing-track {
+    grid-auto-columns: calc((100% - 6rem) / 5);
+  }
+}
+
+/* Scanner line scanning effect */
+@keyframes scan-line {
+  0% { left: 0%; }
+  50% { left: 100%; }
+  100% { left: 0%; }
+}
+
+.animate-scan-line {
+  animation: scan-line 4s ease-in-out infinite;
+}
+
+/* Custom smooth styling */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: #f1f5f9;
+}
+::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
