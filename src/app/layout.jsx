@@ -45,12 +45,12 @@ export const metadata = {
     description: 'تصنيع وتوريد مكونات التأريض والحماية من الصواعق بجودة صناعية.',
     images: [
       {
-        url: 'https://elrahma-metal.com/rahma-logo.svg',
-        secureUrl: 'https://elrahma-metal.com/rahma-logo.svg',
+        url: 'https://elrahma-metal.com/rahma-logo-full.png',
+        secureUrl: 'https://elrahma-metal.com/rahma-logo-full.png',
         width: 800,
         height: 600,
         alt: 'El Rahma Factory Logo',
-        type: 'image/svg+xml',
+        type: 'image/png',
       },
     ],
   },
@@ -58,7 +58,7 @@ export const metadata = {
     card: 'summary_large_image',
     title: 'شركة الرحمة لتشكيل المعادن',
     description: 'حلول تأريض وحماية من الصواعق بجودة صناعية.',
-    images: ['https://elrahma-metal.com/rahma-logo.svg'],
+    images: ['https://elrahma-metal.com/rahma-logo-full.png'],
   },
   icons: {
     icon: '/rahma-site-icon.png',

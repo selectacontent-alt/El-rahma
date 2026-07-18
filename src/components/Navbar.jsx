@@ -98,10 +98,7 @@ const Navbar = ({ currentPage, setCurrentPage, cartItems = [], removeFromCart, u
             {/* Logo */}
             {!isSearchOpen && (
               <div className="logo rahma-navbar-brand" style={{ cursor: 'pointer', zIndex: 10 }} onClick={() => { if(setCurrentPage) { setCurrentPage('home'); } else { window.location.href = '/'; } }}>
-                <span className="rahma-navbar-mark" aria-hidden="true">
-                  <img src="/rahma-logo.svg" alt="" className="rahma-navbar-mark-img" />
-                </span>
-                <span className="rahma-navbar-wordmark">{wordmark}</span>
+                <img src="/rahma-logo-full.png" alt={wordmark} className="rahma-navbar-logo-img" />
               </div>
             )}
 

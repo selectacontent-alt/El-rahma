@@ -44,8 +44,7 @@ const AboutUs = () => {
 
       <section className="rahma-about-content">
         <div className="rahma-logo-showcase">
-          <img src="/rahma-logo.svg" alt={t('nav.logoAlt')} />
-          <strong>ELRAHMA FACTORY</strong>
+          <img src="/rahma-logo-full.png" alt={t('nav.logoAlt')} />
         </div>
 
         <h2>{fromSettings('about_title', 'about.companyTitle')}</h2>

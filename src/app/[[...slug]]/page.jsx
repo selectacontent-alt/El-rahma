@@ -6,7 +6,7 @@ const SITE_NAME = 'شركة الرحمة لتشكيل المعادن';
 const SITE_DESCRIPTION = 'تصنيع وتوريد مكونات التأريض والحماية من الصواعق بجودة صناعية موثوقة.';
 
 const resolveProductImage = (image) => {
-  if (!image) return `${SITE_URL}/rahma-logo.svg`;
+  if (!image) return `${SITE_URL}/rahma-logo-full.png`;
   return image.startsWith('http') ? image : `${SITE_URL}${image.startsWith('/') ? '' : '/'}${image}`;
 };
 
@@ -95,7 +95,7 @@ export default async function Page(props) {
         '@type': 'Organization',
         name: SITE_NAME,
         url: SITE_URL,
-        logo: `${SITE_URL}/rahma-logo.svg`,
+        logo: `${SITE_URL}/rahma-logo-full.png`,
         description: SITE_DESCRIPTION,
       };
     }

@@ -537,8 +537,8 @@ const WhatsAppWidget = ({ cartItems = [], currentPage }) => {
           }}>
             {/* Header */}
             <div className="whatsapp-chat-header" style={{ background: '#059669', padding: '1.2rem', display: 'flex', alignItems: 'center', gap: '1rem', color: 'white' }}>
-              <div style={{ width: '45px', height: '45px', background: 'white', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '5px' }}>
-                <img src="/rahma-logo.svg" alt={t('nav.logoAlt')} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={(e) => e.target.style.display = 'none'} />
+              <div style={{ width: '108px', height: '44px', background: '#15100c', borderRadius: '8px', display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '6px 8px', flexShrink: 0, border: '1px solid rgba(255,255,255,0.16)' }}>
+                <img src="/rahma-logo-full.png" alt={t('nav.logoAlt')} style={{ width: '100%', height: '100%', objectFit: 'contain' }} onError={(e) => e.target.style.display = 'none'} />
               </div>
               <div style={{ flex: 1 }}>
                 <h4 style={{ margin: 0, fontSize: '1.1rem', fontWeight: '900' }}>{t('whatsapp.widgetTitle')}</h4>

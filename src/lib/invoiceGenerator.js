@@ -82,7 +82,7 @@ async function generateInvoiceImageNow(orderId, customerName, customerPhone, tot
 
         let logoBase64 = '';
         try {
-            const logoPath = path.join(process.cwd(), 'public', 'logo.png');
+            const logoPath = path.join(process.cwd(), 'public', 'rahma-logo-full.png');
             if (fs.existsSync(logoPath)) {
                 const logoData = fs.readFileSync(logoPath);
                 logoBase64 = `data:image/png;base64,${logoData.toString('base64')}`;

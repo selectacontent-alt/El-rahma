@@ -61,7 +61,7 @@ const BonicamHomeSection = ({ setCurrentPage }) => {
           </div>
 
           <div className="rahma-supply-visual" aria-hidden="true">
-            <img src="/rahma-logo.svg" alt="" />
+            <img src="/rahma-logo-full.png" alt="" />
           </div>
         </div>
 
@@ -216,7 +216,7 @@ const BonicamHomeSection = ({ setCurrentPage }) => {
         }
 
         .rahma-supply-visual img {
-          width: min(260px, 80%);
+          width: min(360px, 92%);
           height: auto;
           filter: drop-shadow(0 18px 28px rgba(0, 0, 0, 0.28));
         }

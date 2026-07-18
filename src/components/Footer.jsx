@@ -52,7 +52,7 @@ const Footer = ({ setCurrentPage }) => {
         {/* Brand & Social Column */}
         <div className="ef-col ef-brand-col">
            <div className="ef-logo-container" onClick={() => { if(setCurrentPage) setCurrentPage('home'); window.scrollTo(0,0); }}>
-             <img src="/rahma-logo.svg" alt={brandName} className="ef-logo" />
+             <img src="/rahma-logo-full.png" alt={brandName} className="ef-logo" />
            </div>
            <p className="ef-desc">
              {aboutText}
@@ -225,7 +225,8 @@ const Footer = ({ setCurrentPage }) => {
         }
 
         .ef-logo {
-          max-width: 180px;
+          width: min(260px, 100%);
+          max-width: 260px;
           height: auto;
           filter: drop-shadow(0 4px 6px rgba(0,0,0,0.3));
         }

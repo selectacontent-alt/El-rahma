@@ -935,7 +935,7 @@
 
 .rahma-logo-showcase img,
 .rahma-contact-logo-band img {
-  width: min(220px, 42vw);
+  width: min(380px, 78vw);
   height: auto;
   filter: drop-shadow(0 14px 28px rgba(84, 42, 12, 0.22));
 }
@@ -1773,11 +1773,19 @@
 }
 
 .rahma-navbar-brand {
-  flex: 0 0 210px;
+  flex: 0 0 250px;
   display: flex;
   align-items: center;
-  gap: 8px;
   justify-content: flex-start;
+}
+
+.rahma-navbar-logo-img {
+  width: min(245px, 100%);
+  height: auto !important;
+  max-height: 56px;
+  display: block;
+  object-fit: contain;
+  filter: drop-shadow(0 4px 12px rgba(255, 160, 0, 0.16));
 }
 
 .rahma-navbar-mark {
@@ -1928,7 +1936,12 @@
   }
 
   .rahma-navbar-brand {
-    flex-basis: 190px;
+    flex-basis: 210px;
+  }
+
+  .rahma-navbar-logo-img {
+    width: 205px;
+    max-height: 46px;
   }
 
   .rahma-navbar-mark {
@@ -1956,7 +1969,12 @@
   }
 
   .rahma-navbar-brand {
-    flex-basis: 172px;
+    flex-basis: 176px;
+  }
+
+  .rahma-navbar-logo-img {
+    width: 168px;
+    max-height: 38px;
   }
 
   .rahma-navbar-mark {
