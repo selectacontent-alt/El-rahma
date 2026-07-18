@@ -1,48 +1,22 @@
-# Dependencies
 node_modules/
-
-# Build outputs and caches
 .next/
+out/
 dist/
 build/
-coverage/
-out/
-*.tsbuildinfo
-__pycache__/
-*.py[cod]
 
-# Local environment and secrets
 .env
-.env.*
-!.env.example
-*.pem
-*.key
-*secret*
-*credential*
-select-web-*.json
+.env*.local
 
-# Runtime/user uploads
-backend/uploads/
-backend_drf/media/
+.wwebjs_auth/
+.wwebjs_cache/
+.wwebjs_queue/
 
-# Logs
-*.log
+.agents/
+.codex/
+
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 pnpm-debug.log*
 
-# Local scratch and generated folders
-.agents/
-.codex/
-.codex-temp/
-backups/
-scratch/
-temp_unzip/
-temp_unzip_social/
-extracted_social_temp/
-
-# Archives and OS files
-*.zip
-.DS_Store
-Thumbs.db
+*.tsbuildinfo
