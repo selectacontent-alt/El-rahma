@@ -778,7 +778,7 @@ export default function HomePage({ currentLang: lang, onContact }: HomePageProps
             {processSteps.map((step, index) => (
               <motion.div key={`${step.titleEn}-${index}`} initial={reduceMotion ? false : { opacity: 0, y: 18 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true, margin: '-70px' }} transition={{ delay: index * 0.08 }} className="min-w-[220px] snap-start rounded-3xl border border-slate-700/15 bg-white/85 p-6 md:min-w-0 text-center flex flex-col items-center justify-start">
                 <span className="font-mono text-xs font-black text-[#a16207]">{String(index + 1).padStart(2, '0')}</span>
-                <h3 className="mt-10 text-lg font-black text-[#0f172a]">{lang === 'ar' ? step.titleAr : step.titleEn}</h3>
+                <h3 className="mt-8 text-base font-black leading-snug text-[#0f172a] sm:text-lg">{lang === 'ar' ? step.titleAr : step.titleEn}</h3>
                 {(lang === 'ar' ? step.descriptionAr : step.descriptionEn) && <p className="mt-3 text-sm leading-6 text-slate-400">{lang === 'ar' ? step.descriptionAr : step.descriptionEn}</p>}
               </motion.div>
             ))}
