@@ -20,3 +20,23 @@ yarn-error.log*
 pnpm-debug.log*
 
 *.tsbuildinfo
+
+# Local runtime artifacts
+*.log
+__pycache__/
+*.py[cod]
+scratch/
+backups/
+backend/uploads/
+frontend/.codex-temp/
+
+# Temporary extracted bundles
+temp_unzip/
+temp_unzip_social/
+extracted_social_temp/
+
+# Local service account keys
+select-web-*.json
+
+# Generated archives
+animated-s-logo-complete.zip
