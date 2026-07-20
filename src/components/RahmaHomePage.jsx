@@ -74,8 +74,6 @@ const CopperCanvas = () => {
     let lightCanvas = false;
     let lastFrameAt = 0;
     let startedAt = performance.now();
-    let loadRestartTimer = null;
-    let loadRestarted = false;
     const duration = 2300;
 
     const prefersReducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
@@ -314,8 +312,17 @@ const CopperCanvas = () => {
     };
 
     resize();
+    const shouldAnimate = () => !reduceMotion && !lightCanvas;
+
     const renderFrame = (now) => {
-      const frameBudget = completed ? (lightCanvas ? 70 : 48) : (lightCanvas ? 42 : 32);
+      if (!shouldAnimate()) {
+        frameId = null;
+        completed = true;
+        draw(1, duration);
+        return;
+      }
+
+      const frameBudget = completed ? 48 : 32;
       if (now - lastFrameAt < frameBudget) {
         frameId = requestAnimationFrame(renderFrame);
         return;
@@ -328,71 +335,47 @@ const CopperCanvas = () => {
       frameId = requestAnimationFrame(renderFrame);
     };
 
+    const stopLoop = () => {
+      if (frameId) cancelAnimationFrame(frameId);
+      frameId = null;
+    };
+
+    const startLoop = () => {
+      stopLoop();
+      startedAt = performance.now() - 320;
+      completed = false;
+      lastFrameAt = 0;
+      frameId = requestAnimationFrame(renderFrame);
+    };
+
     const drawStatic = () => {
       const elapsed = performance.now() - startedAt;
       draw(completed ? 1 : Math.min(1, elapsed / duration), elapsed);
     };
 
-    const restartIntro = () => {
-      if (reduceMotion) return;
-      startedAt = performance.now();
-      completed = false;
-      lastFrameAt = 0;
-      draw(0, 0);
-      if (!frameId) frameId = requestAnimationFrame(renderFrame);
-    };
-
-    const scheduleLoadRestart = () => {
-      if (reduceMotion || loadRestarted) return;
-      if (loadRestartTimer) window.clearTimeout(loadRestartTimer);
-      loadRestartTimer = window.setTimeout(() => {
-        loadRestartTimer = null;
-        loadRestarted = true;
-        restartIntro();
-      }, 180);
-    };
-
-    const handleLoad = () => {
-      scheduleLoadRestart();
-    };
-
-    if (reduceMotion) {
-      completed = true;
-      draw(1, duration);
-    } else {
-      draw(0, 0);
-      frameId = requestAnimationFrame(renderFrame);
-      if (document.readyState === 'complete') {
-        scheduleLoadRestart();
-      } else {
-        window.addEventListener('load', handleLoad, { once: true });
-      }
-    }
+    completed = true;
+    draw(1, duration);
+    if (shouldAnimate()) startLoop();
 
     const handleResize = () => {
       resize();
       lastFrameAt = 0;
-      drawStatic();
-      if (!reduceMotion && !frameId) {
-        frameId = requestAnimationFrame(renderFrame);
-      }
-    };
-    const handleVisibilityChange = () => {
-      if (document.hidden || reduceMotion) return;
-      lastFrameAt = 0;
-      if (!completed && performance.now() - startedAt > duration) {
-        restartIntro();
+      if (!shouldAnimate()) {
+        stopLoop();
+        completed = true;
+        draw(1, duration);
         return;
       }
+      drawStatic();
+      if (!frameId) startLoop();
+    };
+    const handleVisibilityChange = () => {
+      if (document.hidden || !shouldAnimate()) return;
+      lastFrameAt = 0;
       if (!frameId) frameId = requestAnimationFrame(renderFrame);
     };
     const handlePageShow = (event) => {
-      if (reduceMotion) return;
-      if (event.persisted) {
-        restartIntro();
-        return;
-      }
-      scheduleLoadRestart();
+      if (event.persisted && shouldAnimate()) startLoop();
     };
     const resizeObserver = typeof ResizeObserver === 'undefined'
       ? null
@@ -404,11 +387,9 @@ const CopperCanvas = () => {
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
-      if (frameId) cancelAnimationFrame(frameId);
-      if (loadRestartTimer) window.clearTimeout(loadRestartTimer);
+      stopLoop();
       resizeObserver?.disconnect();
       window.removeEventListener('resize', handleResize);
-      window.removeEventListener('load', handleLoad);
       window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
