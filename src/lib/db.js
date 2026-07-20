@@ -63,9 +63,13 @@ export async function getPool() {
       CREATE TABLE IF NOT EXISTS categories (
         id INT AUTO_INCREMENT PRIMARY KEY,
         name VARCHAR(255) NOT NULL,
+        image_url VARCHAR(1000) NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
+    try {
+      await pool.query('ALTER TABLE categories ADD COLUMN image_url VARCHAR(1000) NULL');
+    } catch (e) {}
 
     await pool.query(`
       CREATE TABLE IF NOT EXISTS products (

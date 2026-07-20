@@ -73,7 +73,9 @@ const CopperCanvas = () => {
     let canvasHeight = 0;
     let lightCanvas = false;
     let lastFrameAt = 0;
-    const startedAt = performance.now();
+    let startedAt = performance.now();
+    let loadRestartTimer = null;
+    let loadRestarted = false;
     const duration = 2300;
 
     const prefersReducedMotion = () => Boolean(window.matchMedia?.('(prefers-reduced-motion: reduce)').matches);
@@ -330,11 +332,41 @@ const CopperCanvas = () => {
       const elapsed = performance.now() - startedAt;
       draw(completed ? 1 : Math.min(1, elapsed / duration), elapsed);
     };
+
+    const restartIntro = () => {
+      if (reduceMotion) return;
+      startedAt = performance.now();
+      completed = false;
+      lastFrameAt = 0;
+      draw(0, 0);
+      if (!frameId) frameId = requestAnimationFrame(renderFrame);
+    };
+
+    const scheduleLoadRestart = () => {
+      if (reduceMotion || loadRestarted) return;
+      if (loadRestartTimer) window.clearTimeout(loadRestartTimer);
+      loadRestartTimer = window.setTimeout(() => {
+        loadRestartTimer = null;
+        loadRestarted = true;
+        restartIntro();
+      }, 180);
+    };
+
+    const handleLoad = () => {
+      scheduleLoadRestart();
+    };
+
     if (reduceMotion) {
       completed = true;
       draw(1, duration);
     } else {
+      draw(0, 0);
       frameId = requestAnimationFrame(renderFrame);
+      if (document.readyState === 'complete') {
+        scheduleLoadRestart();
+      } else {
+        window.addEventListener('load', handleLoad, { once: true });
+      }
     }
 
     const handleResize = () => {
@@ -348,7 +380,19 @@ const CopperCanvas = () => {
     const handleVisibilityChange = () => {
       if (document.hidden || reduceMotion) return;
       lastFrameAt = 0;
+      if (!completed && performance.now() - startedAt > duration) {
+        restartIntro();
+        return;
+      }
       if (!frameId) frameId = requestAnimationFrame(renderFrame);
+    };
+    const handlePageShow = (event) => {
+      if (reduceMotion) return;
+      if (event.persisted) {
+        restartIntro();
+        return;
+      }
+      scheduleLoadRestart();
     };
     const resizeObserver = typeof ResizeObserver === 'undefined'
       ? null
@@ -356,12 +400,16 @@ const CopperCanvas = () => {
 
     resizeObserver?.observe(canvas.parentElement || canvas);
     window.addEventListener('resize', handleResize);
+    window.addEventListener('pageshow', handlePageShow);
     document.addEventListener('visibilitychange', handleVisibilityChange);
 
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
+      if (loadRestartTimer) window.clearTimeout(loadRestartTimer);
       resizeObserver?.disconnect();
       window.removeEventListener('resize', handleResize);
+      window.removeEventListener('load', handleLoad);
+      window.removeEventListener('pageshow', handlePageShow);
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
   }, []);
@@ -439,7 +487,7 @@ const RahmaHomePage = ({ setCurrentPage }) => {
 
     sections.forEach(([, section]) => observer.observe(section));
     return () => observer.disconnect();
-  }, []);
+  }, [settings.rahma_featured_enabled]);
 
   useEffect(() => {
     const section = metricsRef.current;
@@ -476,17 +524,11 @@ const RahmaHomePage = ({ setCurrentPage }) => {
       heroSecondary: s('rahma_hero_secondary_cta', 'rahmaHome.heroSecondary'),
       flowTitle: s('rahma_flow_title', 'rahmaHome.flowTitle'),
       flowSub: s('rahma_flow_subtitle', 'rahmaHome.flowSubtitle'),
-      categoriesTitle: s('rahma_categories_title', 'rahmaHome.categoriesTitle'),
-      categoriesSub: s('rahma_categories_subtitle', 'rahmaHome.categoriesSubtitle'),
-      categoriesButton: s('rahma_categories_button', 'rahmaHome.categoriesButton'),
       whyTitle: s('why_title', 'rahmaHome.whyTitle'),
       whySub: s('why_desc', 'rahmaHome.whySubtitle'),
       featuredTitle: s('rahma_featured_title', 'rahmaHome.featuredTitle'),
       featuredSub: s('rahma_featured_subtitle', 'rahmaHome.featuredSubtitle'),
       featuredButton: s('rahma_featured_button', 'rahmaHome.featuredButton'),
-      sectorsTitle: s('rahma_sectors_title', 'rahmaHome.sectorsTitle'),
-      sectorsSub: s('rahma_sectors_subtitle', 'rahmaHome.sectorsSubtitle'),
-      sectorsButton: s('rahma_sectors_button', 'rahmaHome.sectorsButton'),
       ctaTitle: s('rahma_cta_title', 'rahmaHome.ctaTitle'),
       ctaSub: s('rahma_cta_subtitle', 'rahmaHome.ctaSubtitle'),
       ctaButton: s('rahma_cta_button', 'rahmaHome.ctaButton'),
@@ -499,25 +541,11 @@ const RahmaHomePage = ({ setCurrentPage }) => {
 
   const productLinks = [
     {
-      id: 'categories',
-      title: content.categoriesTitle,
-      desc: content.categoriesSub,
-      button: content.categoriesButton,
-      enabled: settings.rahma_categories_enabled !== 'false'
-    },
-    {
       id: 'featured',
       title: content.featuredTitle,
       desc: content.featuredSub,
       button: content.featuredButton,
       enabled: settings.rahma_featured_enabled !== 'false'
-    },
-    {
-      id: 'sectors',
-      title: content.sectorsTitle,
-      desc: content.sectorsSub,
-      button: content.sectorsButton,
-      enabled: settings.rahma_sectors_enabled !== 'false'
     }
   ].filter(item => item.enabled);
 
@@ -557,9 +585,14 @@ const RahmaHomePage = ({ setCurrentPage }) => {
     settings.support_whatsapp || DEFAULT_SITE_SETTINGS.support_whatsapp,
     settings.contact_phone_3 || DEFAULT_SITE_SETTINGS.contact_phone_3
   ].filter(Boolean);
-
-  const goStore = () => {
-    if (setCurrentPage) setCurrentPage('store');
+  const goStore = (categoryName = '') => {
+    const cleanCategory = String(categoryName || '').trim();
+    const targetPath = cleanCategory ? `/store?category=${encodeURIComponent(cleanCategory)}` : '/store';
+    if (setCurrentPage) {
+      setCurrentPage('store', targetPath);
+    } else {
+      window.history.pushState({}, '', targetPath);
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -629,7 +662,7 @@ const RahmaHomePage = ({ setCurrentPage }) => {
                 className="rahma-product-link"
                 key={item.id}
                 style={{ '--reveal-index': index }}
-                onClick={goStore}
+                onClick={() => goStore()}
               >
                 <span className="rahma-product-link-number">{String(index + 1).padStart(2, '0')}</span>
                 <span className="rahma-product-link-copy">

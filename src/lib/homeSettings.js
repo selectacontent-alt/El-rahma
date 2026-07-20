@@ -1,10 +1,15 @@
 export const DEFAULT_SITE_SETTINGS = {
   store_name: 'شركة الرحمة لتشكيل المعادن',
   default_language: 'ar',
+  nav_home_label: 'الرئيسية',
+  nav_service_label: 'خدمتنا',
+  nav_store_label: 'المتجر',
+  nav_about_label: 'من نحن',
+  nav_contact_label: 'اتصل بنا',
 
   hero_badge: 'جودة للخامات، سعر مميز، سرعة تسليم',
-  hero_title: 'شركة الرحمة لتشكيل المعادن',
-  hero_desc: 'جودة للخامات، سعر مميز، سرعة تسليم',
+  hero_title: 'أمان الكهرباء يبدأ بتأريض موثوق',
+  hero_desc: 'نوفر مكونات تأريض وحماية من الصواعق تساعد على تقليل مخاطر الأعطال وحماية المنشآت والمعدات.',
   hero_image: '/rahma/earth-rods.png',
   hero_image_2: '/rahma/grounding-clamp.png',
   hero_image_3: '/rahma/copper-busbar.png',

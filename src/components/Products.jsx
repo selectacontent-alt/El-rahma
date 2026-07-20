@@ -606,6 +606,18 @@ const Products = ({ cartItems, addToCart, undoAddToCart, searchQuery = '', offer
   const [selectionError, setSelectionError] = useState(false);
 
   useEffect(() => {
+    const syncCategoryFilterFromUrl = () => {
+      if (!window.location.pathname.startsWith('/store')) return;
+      const categoryParam = new URLSearchParams(window.location.search).get('category');
+      setFilterCategory(categoryParam || 'all');
+    };
+
+    syncCategoryFilterFromUrl();
+    window.addEventListener('popstate', syncCategoryFilterFromUrl);
+    return () => window.removeEventListener('popstate', syncCategoryFilterFromUrl);
+  }, []);
+
+  useEffect(() => {
     window.dispatchEvent(new CustomEvent('product-modal-state-change', { detail: !!selectedProduct }));
     if (selectedProduct) {
       setTimeout(() => {

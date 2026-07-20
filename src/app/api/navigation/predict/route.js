@@ -2,15 +2,14 @@ import { NextResponse } from 'next/server';
 import { getPool } from '@/lib/db';
 
 const ALLOWED_PATHS = new Set([
-  '/', '/store', '/booking', '/media', '/about', '/track', '/contact',
+  '/', '/store', '/booking', '/about', '/track', '/contact',
   '/policy', '/login', '/account', '/checkout',
 ]);
 
 const FALLBACKS = {
-  '/': ['/store', '/booking', '/media'],
+  '/': ['/store', '/booking', '/contact'],
   '/store': ['/checkout', '/booking', '/'],
   '/booking': ['/store', '/contact', '/'],
-  '/media': ['/booking', '/store', '/'],
   '/about': ['/store', '/contact', '/'],
   '/track': ['/store', '/contact', '/'],
   '/contact': ['/store', '/', '/about'],
@@ -23,10 +22,9 @@ const FALLBACKS = {
 const resourcesFor = (path, language) => {
   const lang = language === 'en' ? 'en' : 'ar';
   const resources = {
-    '/': ['/api/settings', `/api/products?lang=${lang}`, `/api/categories?lang=${lang}`, '/api/media/homepage', '/api/testimonials'],
+    '/': ['/api/settings', `/api/products?lang=${lang}`, '/api/testimonials'],
     '/store': [`/api/products?lang=${lang}`, `/api/categories?lang=${lang}`],
     '/booking': ['/api/booking'],
-    '/media': ['/api/media'],
   };
   return resources[path] || [];
 };

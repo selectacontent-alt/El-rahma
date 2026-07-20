@@ -17,19 +17,23 @@
       "en": "No results found"
     },
     "home": {
-      "ar": "الصفحة الرئيسية",
+      "ar": "الرئيسية",
       "en": "Home"
     },
+    "service": {
+      "ar": "خدمتنا",
+      "en": "Our Service"
+    },
     "store": {
-      "ar": "المنتجات",
-      "en": "Products"
+      "ar": "المتجر",
+      "en": "Store"
     },
     "aboutUs": {
       "ar": "من نحن",
       "en": "About Us"
     },
     "contact": {
-      "ar": "تواصل معنا",
+      "ar": "اتصل بنا",
       "en": "Contact Us"
     },
     "policy": {
@@ -817,7 +821,7 @@
       "en": "Admin Panel"
     },
     "pageNameContact": {
-      "ar": "تواصل معنا",
+      "ar": "اتصل بنا",
       "en": "Contact Us"
     },
     "pageNameTrack": {
@@ -2336,6 +2340,26 @@
       "ar": "اسم القسم...",
       "en": "Category Name..."
     },
+    "categoryImageLabel": {
+      "ar": "صورة القسم",
+      "en": "Category Image"
+    },
+    "categoryImageHint": {
+      "ar": "تظهر في الصفحة الرئيسية",
+      "en": "Shown on the homepage"
+    },
+    "categoryChangeImage": {
+      "ar": "تغيير الصورة",
+      "en": "Change Image"
+    },
+    "categoryUploading": {
+      "ar": "جاري الحفظ",
+      "en": "Saving"
+    },
+    "categorySaveTitle": {
+      "ar": "حفظ القسم",
+      "en": "Save Category"
+    },
     "addCategoryBtn": {
       "ar": "إضافة قسم",
       "en": "Add Category"
@@ -2347,6 +2371,22 @@
     "deleteCategoryTitle": {
       "ar": "حذف القسم",
       "en": "Delete Category"
+    },
+    "alertCategoryUpdated": {
+      "ar": "تم حفظ القسم بنجاح",
+      "en": "Category saved successfully"
+    },
+    "alertCategoryUpdateError": {
+      "ar": "حدث خطأ أثناء حفظ القسم",
+      "en": "Error saving category"
+    },
+    "alertCategoryImageUpdated": {
+      "ar": "تم تحديث صورة القسم",
+      "en": "Category image updated"
+    },
+    "alertCategoryImageError": {
+      "ar": "حدث خطأ أثناء تحديث صورة القسم",
+      "en": "Error updating category image"
     },
     "noProductsText": {
       "ar": "لا توجد منتجات",
@@ -2894,12 +2934,12 @@
   },
   "rahmaHome": {
     "heroTitle": {
-      "ar": "شركة الرحمة لتشكيل المعادن",
-      "en": "El Rahma Metal Forming Company"
+      "ar": "أمان الكهرباء يبدأ بتأريض موثوق",
+      "en": "Electrical Safety Starts with Reliable Grounding"
     },
     "heroDesc": {
-      "ar": "جودة للخامات، سعر مميز، سرعة تسليم",
-      "en": "Reliable materials, competitive pricing, and fast delivery"
+      "ar": "نوفر مكونات تأريض وحماية من الصواعق تساعد على تقليل مخاطر الأعطال وحماية المنشآت والمعدات.",
+      "en": "We supply grounding and lightning protection components that help reduce fault risks and protect facilities and equipment."
     },
     "heroPrimary": {
       "ar": "استكشف منتجاتنا",

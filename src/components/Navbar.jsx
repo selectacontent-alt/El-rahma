@@ -81,10 +81,17 @@ const Navbar = ({ currentPage, setCurrentPage, cartItems = [], removeFromCart, u
   const searchResults = (searchQuery || '').trim() 
     ? products.filter(p => p.title?.toLowerCase().includes((searchQuery || '').toLowerCase()) || (p.description && p.description.toLowerCase().includes((searchQuery || '').toLowerCase()))).slice(0, 8) 
     : [];
-  const isRahmaDarkPage = ['about', 'contact', 'store', 'media'].includes(currentPage);
+  const isRahmaDarkPage = ['about', 'contact', 'store'].includes(currentPage);
   const wordmark = language === 'ar'
     ? (siteSettings.store_name || t('nav.logoAlt'))
     : t('nav.logoAlt');
+  const navLabels = {
+    home: language === 'ar' ? (siteSettings.nav_home_label || t('nav.home')) : t('nav.home'),
+    service: language === 'ar' ? (siteSettings.nav_service_label || t('nav.service')) : t('nav.service'),
+    store: language === 'ar' ? (siteSettings.nav_store_label || t('nav.store')) : t('nav.store'),
+    about: language === 'ar' ? (siteSettings.nav_about_label || t('nav.aboutUs')) : t('nav.aboutUs'),
+    contact: language === 'ar' ? (siteSettings.nav_contact_label || t('nav.contact')) : t('nav.contact')
+  };
 
   return (
     <>
@@ -104,24 +111,20 @@ const Navbar = ({ currentPage, setCurrentPage, cartItems = [], removeFromCart, u
 
 
               <ul className="flex nav-links rahma-primary-nav items-center">
-                <li className={currentPage === 'home' ? 'is-active' : ''} onClick={() => handleNavigate('home', 'home')}>{t('nav.home')}</li>
-                <li className={currentPage === 'about' ? 'is-active' : ''} onClick={() => handleNavigate('about')}>{t('nav.aboutUs')}</li>
-                <li onClick={() => handleNavigate('home', 'rahma-products')}>{t('categories.title')}</li>
-                <li className={currentPage === 'store' ? 'is-active' : ''} onClick={() => handleNavigate('store')}>{t('nav.store')}</li>
-                <li onClick={() => handleNavigate('home', 'rahma-products')}>{t('nav.sectors')}</li>
-                <li className={currentPage === 'media' ? 'is-active' : ''} onClick={() => handleNavigate('media')}>{t('nav.media')}</li>
-                <li className={currentPage === 'contact' ? 'is-active' : ''} onClick={() => handleNavigate('contact')}>{t('nav.contact')}</li>
+                <li className={currentPage === 'home' ? 'is-active' : ''} onClick={() => handleNavigate('home', 'home')}>{navLabels.home}</li>
+                <li onClick={() => handleNavigate('home', 'rahma-flow')}>{navLabels.service}</li>
+                <li className={currentPage === 'store' ? 'is-active' : ''} onClick={() => handleNavigate('store')}>{navLabels.store}</li>
+                <li className={currentPage === 'about' ? 'is-active' : ''} onClick={() => handleNavigate('about')}>{navLabels.about}</li>
+                <li className={currentPage === 'contact' ? 'is-active' : ''} onClick={() => handleNavigate('contact')}>{navLabels.contact}</li>
               </ul>
 
             {/* Mobile Menu Dropdown */}
             <ul className={`mobile-nav-menu ${isMobileMenuOpen ? 'open' : ''}`}>
-              <li onClick={() => handleNavigate('home', 'home')}>{t('nav.home')}</li>
-              <li onClick={() => handleNavigate('about')}>{t('nav.aboutUs')}</li>
-              <li onClick={() => handleNavigate('home', 'rahma-products')}>{t('categories.title')}</li>
-              <li onClick={() => handleNavigate('store')}>{t('nav.store')}</li>
-              <li onClick={() => handleNavigate('home', 'rahma-products')}>{t('nav.sectors')}</li>
-              <li onClick={() => handleNavigate('media')}>{t('nav.media')}</li>
-              <li onClick={() => handleNavigate('contact')}>{t('nav.contact')}</li>
+              <li onClick={() => handleNavigate('home', 'home')}>{navLabels.home}</li>
+              <li onClick={() => handleNavigate('home', 'rahma-flow')}>{navLabels.service}</li>
+              <li onClick={() => handleNavigate('store')}>{navLabels.store}</li>
+              <li onClick={() => handleNavigate('about')}>{navLabels.about}</li>
+              <li onClick={() => handleNavigate('contact')}>{navLabels.contact}</li>
               <li onClick={() => handleNavigate(customerAuth ? 'account' : 'login')} style={{ borderTop: '1px solid #f1f5f9', marginTop: '0.5rem', paddingTop: '0.5rem', display: 'flex', alignItems: 'center', gap: '0.5rem', color: 'var(--primary-color)' }}>
                 <User size={18} />
                 {customerAuth ? t('nav.myAccount') : t('nav.login')}

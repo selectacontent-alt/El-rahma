@@ -30,6 +30,16 @@ const GOVERNORATES = [
   'الإسكندرية', 'القاهرة', 'الجيزة', 'القليوبية', 'البحيرة', 'الدقهلية', 'الغربية', 'المنوفية', 'الشرقية', 'دمياط', 'كفر الشيخ', 'بورسعيد', 'الإسماعيلية', 'السويس', 'مرسى مطروح', 'الفيوم', 'بني سويف', 'المنيا', 'أسيوط', 'سوهاج', 'قنا', 'الأقصر', 'أسوان', 'الوادي الجديد', 'البحر الأحمر', 'شمال سيناء', 'جنوب سيناء'
 ];
 
+const NAV_LABEL_FIELDS = [
+  ['nav_home_label', 'الرئيسية'],
+  ['nav_service_label', 'خدمتنا'],
+  ['nav_store_label', 'المتجر'],
+  ['nav_about_label', 'من نحن'],
+  ['nav_contact_label', 'اتصل بنا']
+];
+
+const DEFAULT_NAV_LABEL_SETTINGS = Object.fromEntries(NAV_LABEL_FIELDS);
+
 const CustomStatusSelect = ({ currentStatus, onChange }) => {
   const { t } = useLanguage();
 
@@ -300,12 +310,17 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
 
   // Category Form state
   const [newCategoryName, setNewCategoryName] = useState('');
+  const [categoryImageFile, setCategoryImageFile] = useState(null);
+  const [categoryImagePreview, setCategoryImagePreview] = useState('');
+  const [categoryUpdatingId, setCategoryUpdatingId] = useState(null);
+  const categoryFileInputRef = useRef(null);
 
   // Settings state
   const [settingsSubTab, setSettingsSubTab] = useState('general');
   const [settings, setSettings] = useState({
     store_name: '',
     default_language: 'ar',
+    ...DEFAULT_NAV_LABEL_SETTINGS,
     hero_title: '',
     hero_desc: '',
     hero_badge: '',
@@ -517,7 +532,7 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
         setProducts(Array.isArray(productsData) ? productsData : []);
         setCategories(Array.isArray(categoriesData) ? categoriesData : []);
         setOrders(Array.isArray(ordersData) ? ordersData : []);
-        setSettings(settingsData);
+        setSettings({ ...DEFAULT_NAV_LABEL_SETTINGS, ...settingsData });
         setTestimonials(Array.isArray(testimonialsData) ? testimonialsData : []);
         setMediaGalleryItems(Array.isArray(mediaData) ? mediaData : []);
         setCoupons(Array.isArray(couponsData) ? couponsData : []);
@@ -629,6 +644,12 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
     return data.url;
   };
 
+  const clearCategoryCache = () => {
+    clearJsonCache('/api/categories');
+    clearJsonCache('/api/categories?lang=ar');
+    clearJsonCache('/api/categories?lang=en');
+  };
+
   const handleProductImageChange = (e) => {
     if (e.target.files && e.target.files.length > 0) {
       const newImages = [];
@@ -697,6 +718,16 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
       setAboutImageFile(file);
       setAboutImagePreview(URL.createObjectURL(file));
     }
+  };
+
+  const handleCategoryImageChange = (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      return alert(t('admin.alertImageTooLarge'));
+    }
+    setCategoryImageFile(file);
+    setCategoryImagePreview(URL.createObjectURL(file));
   };
 
   const handleTestimonialUpload = async (e) => {
@@ -1251,28 +1282,99 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
     }
   };
 
-  const handleAddCategory = (e) => {
-    e.preventDefault();
-    if (!newCategoryName.trim()) return;
+  const resetCategoryForm = () => {
+    setNewCategoryName('');
+    setCategoryImageFile(null);
+    setCategoryImagePreview('');
+    if (categoryFileInputRef.current) categoryFileInputRef.current.value = '';
+  };
 
-    fetch('/api/categories', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: newCategoryName })
-    })
-      .then(res => res.json())
-      .then(() => {
-        fetchData();
-        setNewCategoryName('');
-        alert(t('admin.alertCategoryAdded'));
-      })
-      .catch(err => alert(t('admin.alertCategoryError')));
+  const updateCategoryLocal = (id, updates) => {
+    setCategories(prev => prev.map(cat => (
+      Number(cat.id) === Number(id) ? { ...cat, ...updates } : cat
+    )));
+  };
+
+  const handleAddCategory = async (e) => {
+    e.preventDefault();
+    const cleanName = newCategoryName.trim();
+    if (!cleanName) return;
+
+    try {
+      let imageUrl = '';
+      if (categoryImageFile) {
+        imageUrl = await uploadImage(categoryImageFile);
+      }
+
+      const res = await fetch('/api/categories', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cleanName, image_url: imageUrl })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || t('admin.alertCategoryError'));
+
+      clearCategoryCache();
+      fetchData();
+      resetCategoryForm();
+      alert(t('admin.alertCategoryAdded'));
+    } catch (err) {
+      alert(err.message || t('admin.alertCategoryError'));
+    }
+  };
+
+  const handleUpdateCategory = async (cat, updates = {}, successMessage = t('admin.alertCategoryUpdated')) => {
+    const cleanName = String(updates.name ?? cat.name ?? '').trim();
+    const imageUrl = updates.image_url !== undefined ? updates.image_url : cat.image_url;
+    if (!cleanName) return alert(t('admin.categoryNamePlaceholder'));
+
+    setCategoryUpdatingId(cat.id);
+    try {
+      const res = await fetch(`/api/categories/${cat.id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: cleanName, image_url: imageUrl || '' })
+      });
+      const data = await res.json();
+      if (!res.ok) throw new Error(data?.error || t('admin.alertCategoryUpdateError'));
+
+      clearCategoryCache();
+      fetchData();
+      alert(successMessage);
+    } catch (err) {
+      alert(err.message || t('admin.alertCategoryUpdateError'));
+    } finally {
+      setCategoryUpdatingId(null);
+    }
+  };
+
+  const handleUpdateCategoryImage = async (cat, e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) {
+      e.target.value = '';
+      return alert(t('admin.alertImageTooLarge'));
+    }
+
+    setCategoryUpdatingId(cat.id);
+    try {
+      const imageUrl = await uploadImage(file);
+      await handleUpdateCategory(cat, { image_url: imageUrl }, t('admin.alertCategoryImageUpdated'));
+    } catch (err) {
+      alert(err.message || t('admin.alertCategoryImageError'));
+      setCategoryUpdatingId(null);
+    } finally {
+      e.target.value = '';
+    }
   };
 
   const handleDeleteCategory = (id) => {
     if (window.confirm(t('admin.confirmDeleteCategory'))) {
       fetch(`/api/categories/${id}`, { method: 'DELETE' })
-        .then(() => fetchData())
+        .then(() => {
+          clearCategoryCache();
+          fetchData();
+        })
         .catch(err => alert(t('admin.alertDeleteError')));
     }
   };
@@ -2138,6 +2240,26 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
 
               <div className="admin-panel admin-categories-form-card">
                 <form onSubmit={handleAddCategory} className="admin-categories-form">
+                  <button
+                    type="button"
+                    className={`admin-category-image-picker ${categoryImagePreview ? 'has-image' : ''}`}
+                    onClick={() => categoryFileInputRef.current?.click()}
+                  >
+                    {categoryImagePreview ? (
+                      <img src={categoryImagePreview} alt={t('admin.categoryImageLabel')} />
+                    ) : (
+                      <span className="admin-category-image-placeholder">{Icons.Image}</span>
+                    )}
+                    <span>{t('admin.categoryImageLabel')}</span>
+                    <small>{t('admin.categoryImageHint')}</small>
+                  </button>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={categoryFileInputRef}
+                    style={{ display: 'none' }}
+                    onChange={handleCategoryImageChange}
+                  />
                   <input type="text" required value={newCategoryName} onChange={e => setNewCategoryName(e.target.value)} className="admin-input" placeholder={t('admin.categoryNamePlaceholder')} />
                   <button type="submit" className="btn-admin" style={{ whiteSpace: 'nowrap' }}>{Icons.Plus} {t('admin.addCategoryBtn')}</button>
                 </form>
@@ -2146,18 +2268,43 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
               <div className="admin-categories-grid">
                 {categories.length === 0 ? <p style={{ color: 'var(--text-muted)', padding: '2rem' }}>{t('admin.noCategories')}</p> : categories.map(cat => (
                   <div key={cat.id} className="admin-category-card">
+                    <label className="admin-category-card-image">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={(e) => handleUpdateCategoryImage(cat, e)}
+                      />
+                      {cat.image_url ? (
+                        <img src={normalizeMediaUrl(cat.image_url)} alt={cat.name} />
+                      ) : (
+                        <span>{Icons.Image}</span>
+                      )}
+                      <small>{categoryUpdatingId === cat.id ? t('admin.categoryUploading') : t('admin.categoryChangeImage')}</small>
+                    </label>
                     <div className="admin-category-card-main">
-                      <div className="admin-category-card-icon">
-                        {Icons.Categories}
-                      </div>
-                      <div>
-                        <strong>{cat.name}</strong>
-                        <small>#{cat.id}</small>
-                      </div>
+                      <input
+                        type="text"
+                        value={cat.name || ''}
+                        onChange={(e) => updateCategoryLocal(cat.id, { name: e.target.value })}
+                        className="admin-category-name-input"
+                        aria-label={t('admin.categoryNamePlaceholder')}
+                      />
+                      <small>#{cat.id}</small>
                     </div>
-                    <button onClick={() => handleDeleteCategory(cat.id)} className="action-btn-danger" title={t('admin.deleteCategoryTitle')}>
-                      {Icons.Trash}
-                    </button>
+                    <div className="admin-category-card-actions">
+                      <button
+                        type="button"
+                        onClick={() => handleUpdateCategory(cat)}
+                        className="action-btn"
+                        title={t('admin.categorySaveTitle')}
+                        disabled={categoryUpdatingId === cat.id}
+                      >
+                        <Save size={18} />
+                      </button>
+                      <button onClick={() => handleDeleteCategory(cat.id)} className="action-btn-danger" title={t('admin.deleteCategoryTitle')}>
+                        {Icons.Trash}
+                      </button>
+                    </div>
                   </div>
                 ))}
               </div>
@@ -2726,6 +2873,19 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
                     </div>
 
                     <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
+                      <h5 style={{ margin: '0 0 0.45rem', color: 'var(--primary-color)', fontWeight: '900' }}>أقسام الموقع</h5>
+                      <p style={{ margin: '0 0 1rem', color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: 1.7 }}>عدّل أسماء الروابط التي تظهر في شريط التنقل الرئيسي.</p>
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem' }}>
+                        {NAV_LABEL_FIELDS.map(([name, label]) => (
+                          <div className="admin-form-group" key={name}>
+                            <label style={{ fontWeight: '700' }}>{label}</label>
+                            <input type="text" name={name} value={settings[name] || label} onChange={handleSettingsChange} className="admin-input" placeholder={label} />
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
                       <h5 style={{ margin: '0 0 1rem', color: 'var(--primary-color)', fontWeight: '900' }}>الهيرو الرئيسي</h5>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(240px, 1fr))', gap: '1rem' }}>
                         {[
@@ -2797,13 +2957,11 @@ const AdminPage = ({ setCurrentPage, user, setAuth }) => {
                     </div>
 
                     <div style={{ background: '#f8fafc', padding: '1.2rem', borderRadius: '16px', border: '1px solid #e2e8f0' }}>
-                      <h5 style={{ margin: '0 0 0.45rem', color: 'var(--primary-color)', fontWeight: '900' }}>روابط صفحة المنتجات</h5>
-                      <p style={{ margin: '0 0 1rem', color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: 1.7 }}>تظهر في الصفحة الرئيسية كرابط مباشر إلى صفحة المنتجات، بدون معاينات أو كروت منتجات.</p>
+                      <h5 style={{ margin: '0 0 0.45rem', color: 'var(--primary-color)', fontWeight: '900' }}>رابط المتجر في الصفحة الرئيسية</h5>
+                      <p style={{ margin: '0 0 1rem', color: 'var(--text-muted)', fontSize: '0.86rem', lineHeight: 1.7 }}>يتحكم هذا الجزء في الرابط المباشر إلى المتجر داخل الصفحة الرئيسية.</p>
                       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(260px, 1fr))', gap: '1rem' }}>
                         {[
-                          { key: 'rahma_categories', label: 'منتجات شركة الرحمة لتشكيل المعادن', fallback: 'عرض كل المنتجات' },
-                          { key: 'rahma_featured', label: 'منتجات مميزة', fallback: 'استعرض المنتجات' },
-                          { key: 'rahma_sectors', label: 'قطاعات نخدمها', fallback: 'اذهب إلى المنتجات' }
+                          { key: 'rahma_featured', label: 'المتجر', fallback: 'استعرض المنتجات' }
                         ].map(item => (
                           <div key={item.key} style={{ background: '#fff', padding: '1rem', borderRadius: '14px', border: '1px solid #e2e8f0' }}>
                             <label style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: '0.8rem', marginBottom: '0.9rem', cursor: 'pointer', fontWeight: '900', color: '#334155' }}>

@@ -136,20 +136,62 @@
 
 .admin-categories-form {
   display: grid;
-  grid-template-columns: minmax(0, 1fr) auto;
+  grid-template-columns: 180px minmax(0, 1fr) auto;
   gap: 1rem;
+  align-items: center;
+}
+
+.admin-category-image-picker {
+  min-height: 110px;
+  border: 1px dashed #cbd5e1;
+  border-radius: 16px;
+  background: #f8fafc;
+  color: #475569;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  gap: 0.25rem;
+  padding: 0.75rem;
+  overflow: hidden;
+  font-family: inherit;
+  font-weight: 900;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+
+.admin-category-image-picker:hover {
+  border-color: var(--primary-color);
+  background: #fff7ed;
+}
+
+.admin-category-image-picker img {
+  width: 100%;
+  height: 76px;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+.admin-category-image-picker small,
+.admin-category-card-image small {
+  color: #94a3b8;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.admin-category-image-placeholder {
+  color: var(--primary-color);
+  line-height: 0;
 }
 
 .admin-categories-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 1rem;
 }
 
 .admin-category-card {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 96px minmax(0, 1fr) auto;
+  align-items: stretch;
   gap: 1rem;
   padding: 1rem;
   border-radius: 16px;
@@ -158,9 +200,46 @@
   box-shadow: 0 10px 30px rgba(15, 23, 42, 0.04);
 }
 
+.admin-category-card-image {
+  position: relative;
+  min-height: 88px;
+  border-radius: 14px;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  overflow: hidden;
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  color: var(--primary-color);
+}
+
+.admin-category-card-image input {
+  display: none;
+}
+
+.admin-category-card-image img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
+}
+
+.admin-category-card-image small {
+  position: absolute;
+  inset-inline: 6px;
+  bottom: 6px;
+  padding: 0.25rem 0.35rem;
+  border-radius: 999px;
+  background: rgba(15, 23, 42, 0.72);
+  color: #fff;
+  text-align: center;
+}
+
 .admin-category-card-main {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: center;
+  flex-direction: column;
   gap: 0.8rem;
   min-width: 0;
 }
@@ -193,6 +272,32 @@
   margin-top: 0.15rem;
 }
 
+.admin-category-name-input {
+  width: 100%;
+  min-height: 42px;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  background: #f8fafc;
+  color: var(--text-dark);
+  padding: 0.65rem 0.8rem;
+  font-family: inherit;
+  font-size: 0.95rem;
+  font-weight: 900;
+  outline: none;
+}
+
+.admin-category-name-input:focus {
+  border-color: var(--primary-color);
+  background: #fff;
+}
+
+.admin-category-card-actions {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 0.45rem;
+}
+
 .luxury-testimonials-grid {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
@@ -220,6 +325,20 @@
 @media (max-width: 760px) {
   .admin-categories-form {
     grid-template-columns: 1fr;
+  }
+
+  .admin-category-image-picker {
+    min-height: 130px;
+  }
+
+  .admin-category-card {
+    grid-template-columns: 86px minmax(0, 1fr) auto;
+    gap: 0.75rem;
+    padding: 0.75rem;
+  }
+
+  .admin-category-card-actions {
+    gap: 0.35rem;
   }
 
   .admin-customers-header {
@@ -3414,6 +3533,32 @@ ul {
   color: #94a3b8 !important;
   text-align: center !important;
   font-weight: 800 !important;
+}
+
+.action-btn {
+  background: #ecfdf5;
+  color: #059669;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: #d1fae5;
+  transform: scale(1.05);
+}
+
+.action-btn:disabled,
+.action-btn-danger:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  transform: none;
 }
 
 .action-btn-danger {

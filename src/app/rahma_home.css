@@ -414,6 +414,8 @@
   color: inherit;
   cursor: pointer;
   overflow: hidden;
+  padding: 0;
+  font-family: inherit;
   text-align: start;
   transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -718,18 +720,21 @@
 }
 
 .rahma-cta-section {
-  background: #0d0b09;
+  background:
+    linear-gradient(90deg, rgba(9, 7, 5, 0.98) 0%, rgba(20, 12, 7, 0.9) 48%, rgba(9, 7, 5, 0.96) 100%),
+    url('/rahma/contact-hero.jpeg') center 54% / cover;
   text-align: center;
+  border-block: 1px solid rgba(255, 160, 0, 0.28);
 }
 
 .rahma-cta-grid {
   position: absolute;
   inset: 0;
-  opacity: 0.06;
-  background-image:
-    linear-gradient(rgba(227, 138, 69, 1) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(227, 138, 69, 1) 1px, transparent 1px);
-  background-size: 38px 38px;
+  opacity: 1;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255, 160, 0, 0.16), transparent 38%),
+    linear-gradient(180deg, rgba(13, 11, 9, 0.22), rgba(13, 11, 9, 0.8)),
+    linear-gradient(90deg, rgba(9, 7, 5, 0.42), transparent 48%, rgba(9, 7, 5, 0.5));
 }
 
 .rahma-cta-inner {
@@ -902,13 +907,13 @@
   position: relative;
   background:
     linear-gradient(90deg, rgba(20, 12, 6, 0.72), rgba(20, 12, 6, 0.24), rgba(20, 12, 6, 0.78)),
-    url('/rahma/copper-busbar.png') center / cover;
+    url('/rahma/about-hero.jpeg') center / cover;
 }
 
 .rahma-page-hero.contact {
   background:
     linear-gradient(90deg, rgba(20, 12, 6, 0.78), rgba(20, 12, 6, 0.22), rgba(20, 12, 6, 0.78)),
-    url('/rahma/lightning-base.png') center / cover;
+    url('/rahma/contact-hero.jpeg') center / cover;
 }
 
 .rahma-page-hero h1 {
@@ -1213,13 +1218,13 @@
   overflow: hidden;
   background:
     linear-gradient(90deg, rgba(12, 8, 5, 0.9), rgba(33, 18, 10, 0.5), rgba(12, 8, 5, 0.92)),
-    url('/rahma/copper-busbar.png') center / cover;
+    url('/rahma/about-hero.jpeg') center / cover;
 }
 
 .rahma-page-hero.contact {
   background:
     linear-gradient(90deg, rgba(12, 8, 5, 0.9), rgba(33, 18, 10, 0.48), rgba(12, 8, 5, 0.92)),
-    url('/rahma/lightning-base.png') center / cover;
+    url('/rahma/contact-hero.jpeg') center / cover;
 }
 
 .rahma-page-hero::before,
@@ -2051,7 +2056,7 @@
   isolation: isolate;
   background:
     linear-gradient(90deg, rgba(9, 7, 5, 0.98) 0%, rgba(15, 9, 5, 0.86) 48%, rgba(10, 7, 5, 0.44) 100%),
-    url('/rahma/copper-busbar.png') center / cover;
+    url('/rahma/contact-hero.jpeg') center / cover;
 }
 
 .rahma-contact-v2-hero::after {
@@ -2690,12 +2695,32 @@
 }
 
 @media (max-width: 700px) {
-  .rahma-home .rahma-category-grid,
   .rahma-home .rahma-feature-grid,
   .rahma-home .rahma-featured-strip,
   .rahma-home .rahma-sector-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     gap: 10px;
+  }
+
+  .rahma-home .rahma-category-grid {
+    display: flex;
+    gap: 10px;
+    width: calc(100% + 28px);
+    margin-inline: -14px;
+    padding: 0 14px 12px;
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+  }
+
+  .rahma-home .rahma-category-grid::-webkit-scrollbar {
+    display: none;
+  }
+
+  .rahma-home .rahma-category-card {
+    flex: 0 0 clamp(150px, 44vw, 220px);
+    scroll-snap-align: start;
   }
 
   .rahma-home .rahma-category-card strong,
@@ -2910,7 +2935,7 @@
   padding-bottom: 70px;
   background:
     linear-gradient(90deg, rgba(8, 6, 4, 0.96), rgba(17, 10, 5, 0.78), rgba(8, 6, 4, 0.54)),
-    url('/rahma/copper-lugs.png') center 46% / cover;
+    url('/rahma/products-hero.jpeg') center 46% / cover;
 }
 
 .rahma-store-page .rahma-store-hero::before {

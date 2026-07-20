@@ -13,7 +13,6 @@ import TrackingPage from './pages/TrackingPage';
 import RefundPolicy from './components/RefundPolicy';
 import CustomerAuthPage from './pages/CustomerAuthPage';
 import CustomerDashboard from './pages/CustomerDashboard';
-import MediaGallery from './components/MediaGallery';
 import BookingPage from './components/BookingPage';
 import FulfillmentPage from './pages/FulfillmentPage';
 import { useLanguage } from './contexts/LanguageContext';
@@ -45,8 +44,11 @@ function App() { const { language, t } = useLanguage();
     else if (path === '/contact') setCurrentPage('contact');
     else if (path === '/login') setCurrentPage('login');
     else if (path === '/account') setCurrentPage('account');
-    else if (path === '/media') setCurrentPage('media');
-    else if (path === '/media') setCurrentPage('media');
+    else if (path === '/media') {
+      window.history.replaceState({}, '', '/');
+      setCurrentPath('/');
+      setCurrentPage('home');
+    }
 
     try {
       const savedAuth = localStorage.getItem('customer_data');
@@ -80,23 +82,26 @@ function App() { const { language, t } = useLanguage();
       else if (path === '/contact') setCurrentPage('contact');
       else if (path === '/login') setCurrentPage('login');
       else if (path === '/account') setCurrentPage('account');
-    else if (path === '/media') setCurrentPage('media');
-      else if (path === '/media') setCurrentPage('media');
+      else if (path === '/media') {
+        window.history.replaceState({}, '', '/');
+        setCurrentPath('/');
+        setCurrentPage('home');
+      }
       else setCurrentPage('home');
     };
     window.addEventListener('popstate', handlePopState);
     return () => window.removeEventListener('popstate', handlePopState);
   }, []);
 
-  const navigate = (page) => {
-    let newPath = '/';
+  const navigate = (page, targetPath = '') => {
+    let newPath = targetPath || '/';
     if (page === 'home') newPath = '/';
-    else if (page === 'admin') newPath = window.location.pathname.startsWith('/scpanel') ? window.location.pathname : '/scpanel/dashboard';
-    else if (page === 'fulfillment') newPath = '/fulfillment';
-    else if (page === 'contact') newPath = '/contact';
-    else if (page === 'login') newPath = '/login';
-    else if (page === 'account') newPath = '/account';
-    else newPath = '/' + page;
+    else if (!targetPath && page === 'admin') newPath = window.location.pathname.startsWith('/scpanel') ? window.location.pathname : '/scpanel/dashboard';
+    else if (!targetPath && page === 'fulfillment') newPath = '/fulfillment';
+    else if (!targetPath && page === 'contact') newPath = '/contact';
+    else if (!targetPath && page === 'login') newPath = '/login';
+    else if (!targetPath && page === 'account') newPath = '/account';
+    else if (!targetPath) newPath = '/' + page;
     
     window.history.pushState({}, '', newPath);
     setCurrentPath(newPath);
@@ -145,7 +150,6 @@ function App() { const { language, t } = useLanguage();
     if (currentPage === 'login') pageKey = 'pageNameLogin';
     if (currentPage === 'account') pageKey = 'pageNameAccount';
     if (currentPage === 'booking') pageKey = 'pageNameBooking';
-    if (currentPage === 'media') pageKey = 'pageNameMedia';
     
     document.title = `${t('app.pageTitle')} - ${t('app.' + pageKey)}`;
   }, [currentPage, t]);
@@ -271,12 +275,6 @@ function App() { const { language, t } = useLanguage();
 
     if (currentPage === 'account') {
       return <CustomerDashboard setCurrentPage={navigate} customerAuth={customerAuth} setCustomerAuth={setCustomerAuth} />;
-    }
-
-
-
-    if (currentPage === 'media') {
-      return <div className="rahma-media-page"><MediaGallery /></div>;
     }
 
     // Default home page
